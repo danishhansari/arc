@@ -1,0 +1,9 @@
+server:
+  port: 5004
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/arc_user_db
+    username: postgres
+    password: root
