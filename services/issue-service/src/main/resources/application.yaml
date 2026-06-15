@@ -1,0 +1,14 @@
+server:
+  port: 5003
+spring:
+  application:
+    name: issue-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/arc_issue_db
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
