@@ -1,5 +1,7 @@
 server:
   port: 5004
+  servlet:
+    context-path: /v1/api
 spring:
   application:
     name: user-service
@@ -7,3 +9,22 @@ spring:
     url: jdbc:postgresql://localhost:5432/arc_user_db
     username: postgres
     password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: user-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
+jwt:
+  secret:
+    key: "thispasswordisverytoughtocrackevenicant"

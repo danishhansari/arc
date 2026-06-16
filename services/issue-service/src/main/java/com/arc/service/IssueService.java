@@ -10,4 +10,8 @@ public interface IssueService {
     IssueDTO create(IssuePojo pojo);
 
     List<IssueDTO> getIssuesByProject(UUID projectId, String sortDirection);
+
+    IssueDTO update(IssuePojo pojo, UUID id);
+
+    IssueDTO getIssue(UUID id);
 }

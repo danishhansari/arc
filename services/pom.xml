@@ -9,7 +9,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.arc</groupId>
     <artifactId>arc-services</artifactId>
     <packaging>pom</packaging>
     <name>Services </name>
@@ -17,6 +16,7 @@
 
     <modules>
         <module>user-service</module>
+        <module>issue-service</module>
     </modules>
 
 </project>
