@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
@@ -75,9 +77,11 @@ public class UserServiceImpl implements UserService {
         if(user == null) {
             throw new UsernameNotFoundException("user doesn't exists");
         }
+        if(redisTemplate.opsForValue().get(user.getEmail()) != null) {
+            return;
+        }
         String otp = OtpGenerator.generateOtp();
-        redisTemplate.opsForValue().set(user.getEmail(), otp);
-        System.out.println("This is otp " + otp);
+        redisTemplate.opsForValue().set(user.getEmail(), otp, 5, TimeUnit.MINUTES);
         EmailDTO emailDTO = new EmailDTO(user.getEmail(), otp);
         kafkaProducerService.sendAuthenticationEmail("email", emailDTO);
     }
