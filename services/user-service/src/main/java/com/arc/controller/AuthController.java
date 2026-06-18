@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.arc.payload.response.ApiResponse;
 
 @RequiredArgsConstructor
 @RestController
@@ -17,13 +16,6 @@ import com.arc.payload.response.ApiResponse;
 public class AuthController {
 
     private final UserService userService;
-
-    @GetMapping
-    public ApiResponse getResonse() {
-        ApiResponse response = new ApiResponse();
-        response.setMessage("This will work eventually");
-        return response;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestBody UserPojo userPojo) throws Exception {
@@ -53,5 +45,9 @@ public class AuthController {
                 .body(dto);
     }
 
+    @PostMapping("/login/email")
+    public void sendEmail(@RequestBody UserPojo userPojo) {
+        userService.sendEmail(userPojo.getEmail());
+    }
 
 }

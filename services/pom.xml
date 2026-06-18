@@ -17,6 +17,7 @@
     <modules>
         <module>user-service</module>
         <module>issue-service</module>
+        <module>email-service</module>
     </modules>
 
 </project>
