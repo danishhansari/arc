@@ -1,6 +1,7 @@
 package com.arc.controller;
 
 import com.arc.dto.UserDTO;
+import com.arc.dto.VerificationDTO;
 import com.arc.pojo.UserPojo;
 import com.arc.pojo.ValidateEmailPojo;
 import com.arc.service.UserService;
@@ -54,7 +55,16 @@ public class AuthController {
     }
 
     @PostMapping("/validate/email")
-    public void validateOtp(@RequestBody ValidateEmailPojo validateEmailPojo) {
-        userService.validateOtp(validateEmailPojo);
+    public ResponseEntity<VerificationDTO> validateOtp(@RequestBody ValidateEmailPojo validateEmailPojo) throws Exception{
+        VerificationDTO dto = userService.validateOtp(validateEmailPojo);
+        ResponseCookie cookie = ResponseCookie
+                .from("token", dto.getJwt())
+                .httpOnly(true)
+                .path("/")
+                .maxAge(86400)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(dto);
     }
 }

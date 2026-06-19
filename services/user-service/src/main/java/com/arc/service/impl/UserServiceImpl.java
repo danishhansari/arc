@@ -4,6 +4,7 @@ import com.arc.assembler.UserAssembler;
 import com.arc.config.JwtProvider;
 import com.arc.dto.EmailDTO;
 import com.arc.dto.UserDTO;
+import com.arc.dto.VerificationDTO;
 import com.arc.entity.User;
 import com.arc.pojo.UserPojo;
 import com.arc.pojo.ValidateEmailPojo;
@@ -83,16 +84,26 @@ public class UserServiceImpl implements UserService {
         kafkaProducerService.sendAuthenticationEmail("email", emailDTO);
     }
 
+    public Authentication authenticateOtp(String email) throws Exception {
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
     @Override
-    public void validateOtp(ValidateEmailPojo validateEmailPojo) {
+    public VerificationDTO validateOtp(ValidateEmailPojo validateEmailPojo) throws Exception {
         String cacheKey = "otp:" + validateEmailPojo.getEmail();
         String cacheOtp = redisTemplate.opsForValue().get(cacheKey);
-        if(cacheOtp == null) return;
+        if(cacheOtp == null) {
+            throw new Exception("Otp is expired");
+        };
         String otp = validateEmailPojo.getOtp();
-        if(cacheOtp.equalsIgnoreCase(otp)) {
-            System.out.println("It iw working fine for this otp " + cacheOtp);
-        } else {
-            System.out.println("I think otp is incorrect");
+        if(!cacheOtp.equalsIgnoreCase(otp)) {
+            throw new Exception("Otp is incorrect");
         }
+        User user = userRepository.findByEmail(validateEmailPojo.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException(validateEmailPojo.getEmail()));
+        Authentication authentication = authenticateOtp(user.getEmail());
+        String jwt = jwtProvider.generateToken(authentication, user.getId());
+        return new VerificationDTO("Success", jwt);
     }
 }
