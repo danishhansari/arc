@@ -6,6 +6,7 @@ import com.arc.dto.EmailDTO;
 import com.arc.dto.UserDTO;
 import com.arc.entity.User;
 import com.arc.pojo.UserPojo;
+import com.arc.pojo.ValidateEmailPojo;
 import com.arc.repository.UserRepository;
 import com.arc.service.KafkaProducerService;
 import com.arc.service.UserService;
@@ -34,17 +35,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO signup(UserPojo pojo) throws Exception {
-        User existingUser = userRepository.findByEmail(pojo.getEmail());
-        if(existingUser != null) {
-            throw new Exception("email already registered");
-        }
+        userRepository.findByEmail(pojo.getEmail()).orElseThrow(() -> new Exception("Email already registered"));
         String hashedPassword = passwordEncoder.encode(pojo.getPassword());
         User user = UserAssembler.getInstance().assembleDTO(pojo);
         user.setPassword(hashedPassword);
-        User savedUser = userRepository.save(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
-        String jwtToken = jwtProvider.generateToken(authentication, savedUser.getId());
-        UserDTO dto = UserAssembler.getInstance().assembleDetails(savedUser);
+        user = userRepository.save(user);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        String jwtToken = jwtProvider.generateToken(authentication, user.getId());
+        UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
         dto.setJwt(jwtToken);
         kafkaProducerService.sendUserDetailToIssueService("user", dto);
         return dto;
@@ -52,8 +50,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO login(String email, String password) throws Exception {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(email));
         Authentication authentication = authentication(email, password);
-        User user = userRepository.findByEmail(email);
         String jwtToken = jwtProvider.generateToken(authentication,user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
         dto.setJwt(jwtToken);
@@ -65,24 +64,35 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new Exception("Invalid credentials");
         }
-
-     return new UsernamePasswordAuthenticationToken(userDetails,
-                null,
-                userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     @Override
     public void sendEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        if(user == null) {
-            throw new UsernameNotFoundException("user doesn't exists");
-        }
-        if(redisTemplate.opsForValue().get(user.getEmail()) != null) {
-            return;
-        }
+        String cacheKey = "otp:" + email;
+        if(redisTemplate.opsForValue().get(cacheKey) != null) return;
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(email);
+                    return userRepository.save(newUser);
+                });
         String otp = OtpGenerator.generateOtp();
-        redisTemplate.opsForValue().set(user.getEmail(), otp, 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(cacheKey, otp, 5, TimeUnit.MINUTES);
         EmailDTO emailDTO = new EmailDTO(user.getEmail(), otp);
         kafkaProducerService.sendAuthenticationEmail("email", emailDTO);
+    }
+
+    @Override
+    public void validateOtp(ValidateEmailPojo validateEmailPojo) {
+        String cacheKey = "otp:" + validateEmailPojo.getEmail();
+        String cacheOtp = redisTemplate.opsForValue().get(cacheKey);
+        if(cacheOtp == null) return;
+        String otp = validateEmailPojo.getOtp();
+        if(cacheOtp.equalsIgnoreCase(otp)) {
+            System.out.println("It iw working fine for this otp " + cacheOtp);
+        } else {
+            System.out.println("I think otp is incorrect");
+        }
     }
 }

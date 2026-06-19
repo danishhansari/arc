@@ -2,6 +2,7 @@ package com.arc.controller;
 
 import com.arc.dto.UserDTO;
 import com.arc.pojo.UserPojo;
+import com.arc.pojo.ValidateEmailPojo;
 import com.arc.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -47,8 +48,13 @@ public class AuthController {
     }
 
     @PostMapping("/login/email")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void sendEmail(@RequestBody UserPojo userPojo) {
         userService.sendEmail(userPojo.getEmail());
     }
 
+    @PostMapping("/validate/email")
+    public void validateOtp(@RequestBody ValidateEmailPojo validateEmailPojo) {
+        userService.validateOtp(validateEmailPojo);
+    }
 }
