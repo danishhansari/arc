@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -30,7 +31,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final CustomUserDetailsService customUserDetailsService;
     private final KafkaProducerService kafkaProducerService;
     private final StringRedisTemplate redisTemplate;
 
@@ -53,18 +53,17 @@ public class UserServiceImpl implements UserService {
     public UserDTO login(String email, String password) throws Exception {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
-        Authentication authentication = authentication(email, password);
+        Authentication authentication = authentication(password, user);
         String jwtToken = jwtProvider.generateToken(authentication,user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
         dto.setJwt(jwtToken);
         return dto;
     }
 
-    public Authentication authentication(String email, String password) throws Exception {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new Exception("Invalid credentials");
-        }
+    public Authentication authentication(String password, User user) throws Exception {
+        if (!passwordEncoder.matches(password, user.getPassword())) throw new Exception("Invalid credentials");
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
+                user.getPassword(), Collections.emptyList());
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
@@ -84,8 +83,9 @@ public class UserServiceImpl implements UserService {
         kafkaProducerService.sendAuthenticationEmail("email", emailDTO);
     }
 
-    public Authentication authenticateOtp(String email) throws Exception {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+    public Authentication authenticateOtp(User user) throws Exception {
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
+                user.getPassword(), Collections.emptyList());
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.findByEmail(validateEmailPojo.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException(validateEmailPojo.getEmail()));
-        Authentication authentication = authenticateOtp(user.getEmail());
+        Authentication authentication = authenticateOtp(user);
         String jwt = jwtProvider.generateToken(authentication, user.getId());
         return new VerificationDTO("Success", jwt);
     }

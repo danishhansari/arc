@@ -20,6 +20,11 @@ public class AuthController {
 
     private final UserService userService;
 
+    @GetMapping
+    public String getMapping() {
+        return "From login";
+    }
+
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestBody UserPojo userPojo) throws Exception {
         UserDTO dto = userService.login(userPojo.getEmail(), userPojo.getPassword());
