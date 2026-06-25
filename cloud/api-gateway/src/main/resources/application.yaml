@@ -22,5 +22,9 @@ spring:
 server:
   port: 8080
 jwt:
-  secret:
-    key: "thispasswordisverytoughtocrackevenicant"
+  key: "thispasswordisverytoughtocrackevenicant"
+rate-limiter:
+  capacity: 10
+  refill-rate: 5
+  api-server-url: http://localhost:8080
+  timeout: 5000

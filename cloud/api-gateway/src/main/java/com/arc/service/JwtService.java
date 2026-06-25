@@ -1,9 +1,9 @@
 package com.arc.service;
 
+import com.arc.constants.AuthConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -15,8 +15,8 @@ public class JwtService {
 
     private final SecretKey secretKey;
 
-    public JwtService(@Value("${jwt.secret.key}") String secretKey) {
-        this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    public JwtService(AuthConstants authConstants) {
+        this.secretKey = Keys.hmacShaKeyFor(authConstants.getKey().getBytes(StandardCharsets.UTF_8));
     }
 
     public Claims validateTokenGetClaims(String token) {
