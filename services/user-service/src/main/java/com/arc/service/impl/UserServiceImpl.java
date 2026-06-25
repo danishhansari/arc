@@ -1,7 +1,7 @@
 package com.arc.service.impl;
 
 import com.arc.assembler.UserAssembler;
-import com.arc.config.JwtProvider;
+import com.arc.config.JwtService;
 import com.arc.dto.EmailDTO;
 import com.arc.dto.UserDTO;
 import com.arc.dto.VerificationDTO;
@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -30,19 +30,22 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
     private final KafkaProducerService kafkaProducerService;
     private final StringRedisTemplate redisTemplate;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     public UserDTO signup(UserPojo pojo) throws Exception {
-        userRepository.findByEmail(pojo.getEmail()).orElseThrow(() -> new Exception("Email already registered"));
+        userRepository.findByEmail(pojo.getEmail()).ifPresent(e -> {
+            throw new RuntimeException("User already exists");
+        });
         String hashedPassword = passwordEncoder.encode(pojo.getPassword());
         User user = UserAssembler.getInstance().assembleDTO(pojo);
         user.setPassword(hashedPassword);
         user = userRepository.save(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
-        String jwtToken = jwtProvider.generateToken(authentication, user.getId());
+        String jwtToken = jwtService.generateToken(authentication, user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
         dto.setJwt(jwtToken);
         kafkaProducerService.sendUserDetailToIssueService("user", dto);
@@ -54,7 +57,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
         Authentication authentication = authentication(password, user);
-        String jwtToken = jwtProvider.generateToken(authentication,user.getId());
+        String jwtToken = jwtService.generateToken(authentication,user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
         dto.setJwt(jwtToken);
         return dto;
@@ -62,8 +65,7 @@ public class UserServiceImpl implements UserService {
 
     public Authentication authentication(String password, User user) throws Exception {
         if (!passwordEncoder.matches(password, user.getPassword())) throw new Exception("Invalid credentials");
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
-                user.getPassword(), Collections.emptyList());
+        UserDetails userDetails = customUserDetailsService.loadUserByEntity(user);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
@@ -84,8 +86,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Authentication authenticateOtp(User user) throws Exception {
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
-                user.getPassword(), Collections.emptyList());
+        UserDetails userDetails = customUserDetailsService.loadUserByEntity(user);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
@@ -103,7 +104,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(validateEmailPojo.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException(validateEmailPojo.getEmail()));
         Authentication authentication = authenticateOtp(user);
-        String jwt = jwtProvider.generateToken(authentication, user.getId());
+        String jwt = jwtService.generateToken(authentication, user.getId());
         return new VerificationDTO("Success", jwt);
     }
 }

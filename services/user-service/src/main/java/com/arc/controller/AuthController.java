@@ -34,7 +34,7 @@ public class AuthController {
                 .path("/")
                 .maxAge(86400)
                 .build();
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(dto);
     }
