@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Setter
 @Getter
-@Configuration
+@Component
 @ConfigurationProperties(prefix = "jwt")
 public class AuthConstants {
     private String key = "thisisveryhardtocracknobodycan";
