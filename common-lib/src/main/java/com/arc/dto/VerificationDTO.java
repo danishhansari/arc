@@ -1,8 +1,9 @@
 package com.arc.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.arc.pojo.WorkspacePojo;
+import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,4 +13,8 @@ public class VerificationDTO {
     private String message;
 
     private String jwt;
+
+    private UserDTO user;
+
+    private List<WorkspaceDTO> organization;
 }

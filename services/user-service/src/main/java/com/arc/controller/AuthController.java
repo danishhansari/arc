@@ -15,41 +15,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("*")
 public class AuthController {
 
     private final UserService userService;
 
-    @GetMapping
-    public String getMapping() {
-        return "From login";
-    }
 
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestBody UserPojo userPojo) throws Exception {
         UserDTO dto = userService.login(userPojo.getEmail(), userPojo.getPassword());
-        ResponseCookie cookie = ResponseCookie
-                .from("token", dto.getJwt())
-                .httpOnly(true)
-                .path("/")
-                .maxAge(86400)
-                .build();
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(dto);
     }
 
     @PostMapping("/signup")
     public ResponseEntity<UserDTO> signUp(@RequestBody UserPojo userPojo) throws Exception {
         UserDTO dto = userService.signup(userPojo);
-        ResponseCookie cookie = ResponseCookie
-                .from("token", dto.getJwt())
-                .httpOnly(true)
-                .path("/")
-                .maxAge(86400)
-                .build();
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(dto);
     }
 
@@ -65,6 +47,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie
                 .from("token", dto.getJwt())
                 .httpOnly(true)
+                .secure(true)
                 .path("/")
                 .maxAge(86400)
                 .build();

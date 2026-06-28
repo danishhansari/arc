@@ -6,7 +6,7 @@ import com.arc.pojo.IssuePojo;
 
 public class IssueAssembler {
 
-    public static IssueAssembler instance;
+    private static IssueAssembler instance;
     private IssueAssembler() {}
 
     public static IssueAssembler getInstance() {

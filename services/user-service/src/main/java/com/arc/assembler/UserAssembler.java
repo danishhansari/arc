@@ -5,7 +5,7 @@ import com.arc.entity.User;
 import com.arc.pojo.UserPojo;
 
 public class UserAssembler {
-    public static UserAssembler instance;
+    private static UserAssembler instance;
     private UserAssembler() {}
 
     public static UserAssembler getInstance() {

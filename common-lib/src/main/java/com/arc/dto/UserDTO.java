@@ -21,5 +21,4 @@ public class UserDTO {
 
     private Timestamp updatedAt;
 
-    private String jwt;
 }

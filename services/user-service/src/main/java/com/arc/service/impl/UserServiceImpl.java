@@ -5,6 +5,7 @@ import com.arc.config.JwtService;
 import com.arc.dto.EmailDTO;
 import com.arc.dto.UserDTO;
 import com.arc.dto.VerificationDTO;
+import com.arc.dto.WorkspaceDTO;
 import com.arc.entity.User;
 import com.arc.pojo.UserPojo;
 import com.arc.pojo.ValidateEmailPojo;
@@ -21,6 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
         String jwtToken = jwtService.generateToken(authentication, user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
-        dto.setJwt(jwtToken);
+//        dto.setJwt(jwtToken);
         kafkaProducerService.sendUserDetailToIssueService("user", dto);
         return dto;
     }
@@ -59,7 +62,7 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = authentication(password, user);
         String jwtToken = jwtService.generateToken(authentication,user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
-        dto.setJwt(jwtToken);
+//        dto.setJwt(jwtToken);
         return dto;
     }
 
@@ -103,8 +106,10 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.findByEmail(validateEmailPojo.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException(validateEmailPojo.getEmail()));
+        UserDTO userDTO = UserAssembler.getInstance().assembleDetails(user);
         Authentication authentication = authenticateOtp(user);
         String jwt = jwtService.generateToken(authentication, user.getId());
-        return new VerificationDTO("Success", jwt);
+        List<WorkspaceDTO> workspaceDTOList = new ArrayList<>();
+        return new VerificationDTO("Success", jwt, userDTO, workspaceDTOList);
     }
 }
