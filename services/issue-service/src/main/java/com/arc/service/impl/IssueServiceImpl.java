@@ -26,7 +26,6 @@ public class IssueServiceImpl implements IssueService {
 
     @KafkaListener(topics = "user", groupId = "user-group")
     public void consume(UserDTO user) {
-        System.out.println("Received user: {}" + user.getEmail());
         UserProjection userProjection = new UserProjection();
         userProjection.setId(user.getId());
         userProjection.setCompanyName(user.getCompanyName());

@@ -29,3 +29,7 @@ spring:
 jwt:
   secret:
     key: "thispasswordisverytoughtocrackevenicant"
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

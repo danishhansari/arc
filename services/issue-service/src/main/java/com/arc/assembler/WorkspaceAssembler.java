@@ -32,7 +32,7 @@ public class WorkspaceAssembler {
         dto.setId(workspace.getId());
         dto.setName(workspace.getName());
         dto.setUrl(workspace.getUrl());
-        dto.setWorkspaceCreator(workspace.getWorkspaceCreator());
+        dto.setWorkspaceCreator(workspace.getWorkspaceCreator().getId());
         return dto;
     }
 }

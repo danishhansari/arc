@@ -1,7 +1,10 @@
 package com.arc.controller;
 
+import com.arc.dto.UrlExistsDTO;
 import com.arc.dto.WorkspaceDTO;
 import com.arc.entity.Workspace;
+import com.arc.payload.response.ApiResponse;
+import com.arc.pojo.UrlExistsPojo;
 import com.arc.pojo.WorkspacePojo;
 import com.arc.repository.WorkspaceRepository;
 import com.arc.service.WorkspaceService;
@@ -33,5 +36,12 @@ public class WorkspaceController {
         UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
         WorkspaceDTO dto = workspaceService.create(pojo, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    }
+
+    @PostMapping("/exists")
+    public ResponseEntity<UrlExistsDTO> workspaceExists(@RequestBody UrlExistsPojo pojo) {
+        boolean exists = workspaceService.exists(pojo.getUrl());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new UrlExistsDTO(exists));
     }
 }

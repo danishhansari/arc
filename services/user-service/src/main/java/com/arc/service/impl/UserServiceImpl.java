@@ -109,6 +109,7 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = UserAssembler.getInstance().assembleDetails(user);
         Authentication authentication = authenticateOtp(user);
         String jwt = jwtService.generateToken(authentication, user.getId());
+        kafkaProducerService.sendUserDetailToIssueService("user", userDTO);
         List<WorkspaceDTO> workspaceDTOList = new ArrayList<>();
         return new VerificationDTO("Success", jwt, userDTO, workspaceDTOList);
     }

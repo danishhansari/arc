@@ -2,6 +2,7 @@ package com.arc.service.impl;
 
 import com.arc.assembler.WorkspaceAssembler;
 import com.arc.dto.WorkspaceDTO;
+import com.arc.entity.UserProjection;
 import com.arc.entity.Workspace;
 import com.arc.pojo.WorkspacePojo;
 import com.arc.repository.WorkspaceRepository;
@@ -20,8 +21,15 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     @Override
     public WorkspaceDTO create(WorkspacePojo pojo, UUID userId) {
         Workspace workspace = WorkspaceAssembler.getInstance().assembleDTO(pojo);
-        workspace.setWorkspaceCreator(userId);
+        UserProjection userProjection = new UserProjection();
+        userProjection.setId(userId);
+        workspace.setWorkspaceCreator(userProjection);
         workspace = workspaceRepository.save(workspace);
         return WorkspaceAssembler.getInstance().assembleDetails(workspace);
+    }
+
+    @Override
+    public boolean exists(String name) {
+        return workspaceRepository.existsByUrl(name);
     }
 }

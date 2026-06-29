@@ -1,9 +1,6 @@
 package com.arc.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +16,13 @@ public class Workspace {
 
     private String name;
 
+    @Column(unique = true, nullable = false)
     private String url;
 
-    private UUID workspaceCreator;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_workspace_creator"),
+            referencedColumnName = "id")
+    private UserProjection workspaceCreator;
 }
