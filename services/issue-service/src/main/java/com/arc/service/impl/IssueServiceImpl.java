@@ -29,6 +29,7 @@ public class IssueServiceImpl implements IssueService {
         UserProjection userProjection = new UserProjection();
         userProjection.setId(user.getId());
         userProjection.setCompanyName(user.getCompanyName());
+        userProjection.setEmail(user.getEmail());
         userProjectionRepository.save(userProjection);
     }
 

@@ -3,15 +3,21 @@ package com.arc.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Entity
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_workspace_email",
+        columnNames = {"workspace_id", "invited_email"})
+})
 public class WorkspaceMember {
 
     @Id
@@ -19,19 +25,20 @@ public class WorkspaceMember {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
+    @JoinColumn(name = "workspace_id",
         nullable = false,
         foreignKey = @ForeignKey(name = "fk_workspace_member_workspace")
     )
     private Workspace workspaceId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
+            name = "user_id",
             foreignKey = @ForeignKey(name = "fk_workspace_member_user")
     )
     private UserProjection userId;
 
-    @Column(nullable = false)
+    @Column(name = "invited_email")
     private String invitedEmail;
 
     @CreationTimestamp

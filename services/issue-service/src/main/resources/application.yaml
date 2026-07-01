@@ -13,7 +13,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+      show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+        order_inserts: true
+        order_updates: true
   kafka:
     bootstrap-servers: localhost:9092
 
@@ -32,4 +38,3 @@ jwt:
 logging:
   level:
     org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
