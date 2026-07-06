@@ -5,6 +5,7 @@ import com.arc.dto.VerificationDTO;
 import com.arc.pojo.UserPojo;
 import com.arc.pojo.ValidateEmailPojo;
 import com.arc.service.UserService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

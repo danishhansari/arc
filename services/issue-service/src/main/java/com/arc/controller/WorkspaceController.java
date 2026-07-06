@@ -2,11 +2,9 @@ package com.arc.controller;
 
 import com.arc.dto.UrlExistsDTO;
 import com.arc.dto.WorkspaceDTO;
-import com.arc.entity.Workspace;
-import com.arc.payload.response.ApiResponse;
+import com.arc.dto.WorkspaceSummaryDTO;
 import com.arc.pojo.UrlExistsPojo;
 import com.arc.pojo.WorkspacePojo;
-import com.arc.repository.WorkspaceRepository;
 import com.arc.service.WorkspaceService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +21,11 @@ import java.util.UUID;
 public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
-    private final WorkspaceRepository workspaceRepository;
 
     @GetMapping
-    public List<Workspace> getReponse(HttpServletRequest request) {
+    public List<WorkspaceSummaryDTO> getWorkspacesSummary(HttpServletRequest request) {
         String userId = request.getAttribute("x-user-id").toString();
-        return workspaceRepository.findAll();
+        return workspaceService.getInvolveWorkspace(userId);
     }
 
     @PostMapping
@@ -44,4 +41,5 @@ public class WorkspaceController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new UrlExistsDTO(exists));
     }
+
 }

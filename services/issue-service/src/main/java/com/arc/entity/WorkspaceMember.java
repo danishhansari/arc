@@ -16,7 +16,10 @@ import java.util.UUID;
 @Entity
 @Table(uniqueConstraints = {
         @UniqueConstraint(name = "uk_workspace_email",
-        columnNames = {"workspace_id", "invited_email"})
+        columnNames = {"workspace_id", "invited_email"}
+        ),
+        @UniqueConstraint(name = "uk_workspace_user_id",
+        columnNames = {"workspace_id", "user_id"})
 })
 public class WorkspaceMember {
 
@@ -43,6 +46,8 @@ public class WorkspaceMember {
 
     @CreationTimestamp
     private Timestamp invitedAt;
+
+    private Boolean isActive;
 
     private String name;
 

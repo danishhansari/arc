@@ -19,7 +19,6 @@ spring:
         jdbc:
           batch_size: 10
         order_inserts: true
-        order_updates: true
   kafka:
     bootstrap-servers: localhost:9092
 
@@ -31,7 +30,7 @@ spring:
 
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 jwt:
   secret:
     key: "thispasswordisverytoughtocrackevenicant"

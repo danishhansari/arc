@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
         String otp = OtpGenerator.generateOtp();
         redisTemplate.opsForValue().set(cacheKey, otp, 5, TimeUnit.MINUTES);
         EmailDTO emailDTO = new EmailDTO(user.getEmail(), otp);
-        kafkaProducerService.sendAuthenticationEmail("email", emailDTO);
+        kafkaProducerService.sendAuthenticationEmail("email_verification_otp", emailDTO);
     }
 
     public Authentication authenticateOtp(User user) throws Exception {
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = UserAssembler.getInstance().assembleDetails(user);
         Authentication authentication = authenticateOtp(user);
         String jwt = jwtService.generateToken(authentication, user.getId());
-        kafkaProducerService.sendUserDetailToIssueService("user", userDTO);
+        kafkaProducerService.sendUserDetailToIssueService("user_details_to_issue_service", userDTO);
         List<WorkspaceDTO> workspaceDTOList = new ArrayList<>();
         return new VerificationDTO("Success", jwt, userDTO, workspaceDTOList);
     }

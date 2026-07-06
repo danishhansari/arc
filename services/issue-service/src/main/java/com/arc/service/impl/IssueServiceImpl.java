@@ -22,16 +22,6 @@ import java.util.UUID;
 public class IssueServiceImpl implements IssueService {
 
     private final IssueRepository repository;
-    private final UserProjectionRepository userProjectionRepository;
-
-    @KafkaListener(topics = "user", groupId = "user-group")
-    public void consume(UserDTO user) {
-        UserProjection userProjection = new UserProjection();
-        userProjection.setId(user.getId());
-        userProjection.setCompanyName(user.getCompanyName());
-        userProjection.setEmail(user.getEmail());
-        userProjectionRepository.save(userProjection);
-    }
 
     @Override
     public IssueDTO create(IssuePojo pojo) {
