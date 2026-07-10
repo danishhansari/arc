@@ -2,7 +2,9 @@ package com.arc.repository;
 
 import com.arc.dto.WorkspaceSummaryDTO;
 import com.arc.entity.WorkspaceMember;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -21,5 +23,28 @@ public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember
     """)
     List<WorkspaceSummaryDTO> findUserWorkspaces(UUID userId);
 
+    @Query("""
+        SELECT new com.arc.dto.WorkspaceSummaryDTO(w.id, w.name, 0l)
+            FROM WorkspaceMember wm
+            JOIN wm.workspaceId w
+            JOIN WorkspaceMember m
+                ON m.workspaceId = w
+            WHERE wm.userId.id = :userId AND
+                wm.active = true
+        GROUP BY w.id, w.name
+    """)
+    WorkspaceSummaryDTO findUserActiveWorkspace(UUID userId);
+
     List<WorkspaceMember> findByInvitedEmail(String email);
+
+    @Modifying
+    @Transactional
+    @Query("""
+        update WorkspaceMember wm
+            set wm.active = CASE when wm.workspaceId.id = :workspaceId THEN TRUE
+                            ELSE false
+                        END
+        where wm.workspaceId.id = :workspaceId and wm.userId.id = :userId
+    """)
+    void updateActive(UUID workspaceId, Boolean active, UUID userId);
 }

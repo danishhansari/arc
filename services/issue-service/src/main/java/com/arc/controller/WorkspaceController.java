@@ -4,6 +4,7 @@ import com.arc.dto.UrlExistsDTO;
 import com.arc.dto.WorkspaceDTO;
 import com.arc.dto.WorkspaceSummaryDTO;
 import com.arc.pojo.UrlExistsPojo;
+import com.arc.pojo.WorkspaceActivePojo;
 import com.arc.pojo.WorkspacePojo;
 import com.arc.service.WorkspaceService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +24,14 @@ public class WorkspaceController {
 
     @GetMapping
     public List<WorkspaceSummaryDTO> getWorkspacesSummary(HttpServletRequest request) {
-        String userId = request.getAttribute("x-user-id").toString();
+        UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
         return workspaceService.getInvolveWorkspace(userId);
+    }
+
+    @GetMapping("/active")
+    public WorkspaceSummaryDTO getActiveWorkspaceSummary(HttpServletRequest request) {
+        UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
+        return workspaceService.getActiveWorkspace(userId);
     }
 
     @PostMapping
@@ -33,6 +39,14 @@ public class WorkspaceController {
         UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
         WorkspaceDTO dto = workspaceService.create(pojo, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    }
+
+    @PatchMapping
+    public ResponseEntity<WorkspaceDTO> updateWorkspace(@RequestBody WorkspaceActivePojo workspaceActivePojo,
+                                                        HttpServletRequest request) {
+        UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
+        WorkspaceDTO workspaceDTO = workspaceService.updateWorkspace(workspaceActivePojo, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(workspaceDTO);
     }
 
     @PostMapping("/exists")

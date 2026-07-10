@@ -5,14 +5,14 @@ import com.arc.dto.WorkspaceDTO;
 import com.arc.dto.WorkspaceSummaryDTO;
 import com.arc.entity.UserProjection;
 import com.arc.entity.Workspace;
-import com.arc.entity.WorkspaceMember;
+import com.arc.pojo.WorkspaceActivePojo;
 import com.arc.pojo.WorkspacePojo;
 import com.arc.repository.WorkspaceMemberRepository;
 import com.arc.repository.WorkspaceRepository;
 import com.arc.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -39,8 +39,24 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     }
 
     @Override
-    public List<WorkspaceSummaryDTO> getInvolveWorkspace(String userId) {
-        return workspaceMemberRepository
-                .findUserWorkspaces(UUID.fromString(userId));
+    public List<WorkspaceSummaryDTO> getInvolveWorkspace(UUID userId) {
+        return workspaceMemberRepository.findUserWorkspaces(userId);
+    }
+
+    @Override
+    public WorkspaceSummaryDTO getActiveWorkspace(UUID userId) {
+        return workspaceMemberRepository.findUserActiveWorkspace(userId);
+    }
+
+    @Override
+    public WorkspaceDTO updateWorkspace(WorkspaceActivePojo workspaceActivePojo, UUID userId) {
+        workspaceMemberRepository.updateActive(
+                workspaceActivePojo.getWorkspaceId(),
+                workspaceActivePojo.getActive(),
+                userId);
+        Workspace workspace = workspaceRepository.findById(workspaceActivePojo.getWorkspaceId()).orElseThrow(
+                () -> new UsernameNotFoundException("Workspace isn't present")
+        );
+        return WorkspaceAssembler.getInstance().assembleDetails(workspace);
     }
 }

@@ -39,7 +39,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
         workspaceMember.setName(workspacePojo.getName());
         workspaceMember.setTitle(workspacePojo.getTitle());
         workspaceMember.setUserId(user);
-        workspaceMember.setIsActive(true);
+        workspaceMember.setActive(true);
         List<String> emails = workspacePojo.getInvitedEmail();
         List<String> newUsers = new ArrayList<>();
         Map<String, UserProjection> userMap = userProjectionRepository

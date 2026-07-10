@@ -47,7 +47,7 @@ public class WorkspaceMember {
     @CreationTimestamp
     private Timestamp invitedAt;
 
-    private Boolean isActive;
+    private Boolean active;
 
     private String name;
 

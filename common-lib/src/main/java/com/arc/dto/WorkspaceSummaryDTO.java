@@ -1,14 +1,13 @@
 package com.arc.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class WorkspaceSummaryDTO {
     private UUID workspaceId;
     private String workspaceName;
