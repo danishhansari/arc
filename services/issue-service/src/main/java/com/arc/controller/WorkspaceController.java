@@ -23,15 +23,20 @@ public class WorkspaceController {
     private final WorkspaceService workspaceService;
 
     @GetMapping
-    public List<WorkspaceSummaryDTO> getWorkspacesSummary(HttpServletRequest request) {
+    public ResponseEntity<List<WorkspaceSummaryDTO>> getWorkspacesSummary(HttpServletRequest request) {
         UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
-        return workspaceService.getInvolveWorkspace(userId);
+        List<WorkspaceSummaryDTO> dtos = workspaceService.getInvolveWorkspace(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
     @GetMapping("/active")
-    public WorkspaceSummaryDTO getActiveWorkspaceSummary(HttpServletRequest request) {
+    public ResponseEntity<WorkspaceSummaryDTO> getActiveWorkspaceSummary(HttpServletRequest request) {
         UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
-        return workspaceService.getActiveWorkspace(userId);
+        WorkspaceSummaryDTO dto = workspaceService.getActiveWorkspace(userId);
+        if(dto == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
