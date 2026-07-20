@@ -5,23 +5,19 @@ import com.arc.dto.VerificationDTO;
 import com.arc.pojo.UserPojo;
 import com.arc.pojo.ValidateEmailPojo;
 import com.arc.service.UserService;
-import com.arc.service.impl.CustomUserDetailsService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RequiredArgsConstructor
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class AuthController {
 

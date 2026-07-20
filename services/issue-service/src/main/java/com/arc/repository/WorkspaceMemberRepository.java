@@ -1,5 +1,6 @@
 package com.arc.repository;
 
+import com.arc.dto.WorkspaceDTO;
 import com.arc.dto.WorkspaceSummaryDTO;
 import com.arc.entity.WorkspaceMember;
 import jakarta.transaction.Transactional;
@@ -24,16 +25,16 @@ public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember
     List<WorkspaceSummaryDTO> findUserWorkspaces(UUID userId);
 
     @Query("""
-        SELECT new com.arc.dto.WorkspaceSummaryDTO(w.id, w.name, 0l)
+        SELECT new com.arc.dto.WorkspaceDTO(w.id, w.name, w.url, w.workspaceCreator.id)
             FROM WorkspaceMember wm
             JOIN wm.workspaceId w
             JOIN WorkspaceMember m
                 ON m.workspaceId = w
             WHERE wm.userId.id = :userId AND
                 wm.active = true
-        GROUP BY w.id, w.name
+        GROUP BY w.id, w.name, w.url, w.workspaceCreator.id
     """)
-    WorkspaceSummaryDTO findUserActiveWorkspace(UUID userId);
+    WorkspaceDTO findUserActiveWorkspace(UUID userId);
 
     List<WorkspaceMember> findByInvitedEmail(String email);
 

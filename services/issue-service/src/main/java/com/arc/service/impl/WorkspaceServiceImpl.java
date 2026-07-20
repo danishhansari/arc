@@ -44,7 +44,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     }
 
     @Override
-    public WorkspaceSummaryDTO getActiveWorkspace(UUID userId) {
+    public WorkspaceDTO getActiveWorkspace(UUID userId) {
         return workspaceMemberRepository.findUserActiveWorkspace(userId);
     }
 

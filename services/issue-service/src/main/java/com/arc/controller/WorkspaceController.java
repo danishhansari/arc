@@ -30,9 +30,9 @@ public class WorkspaceController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<WorkspaceSummaryDTO> getActiveWorkspaceSummary(HttpServletRequest request) {
+    public ResponseEntity<WorkspaceDTO> getActiveWorkspaceSummary(HttpServletRequest request) {
         UUID userId = UUID.fromString(request.getAttribute("x-user-id").toString());
-        WorkspaceSummaryDTO dto = workspaceService.getActiveWorkspace(userId);
+        WorkspaceDTO dto = workspaceService.getActiveWorkspace(userId);
         if(dto == null) {
             return ResponseEntity.noContent().build();
         }

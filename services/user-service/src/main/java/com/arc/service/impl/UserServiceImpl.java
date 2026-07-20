@@ -50,7 +50,6 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
         String jwtToken = jwtService.generateToken(authentication, user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
-//        dto.setJwt(jwtToken);
         kafkaProducerService.sendUserDetailToIssueService("user", dto);
         return dto;
     }
@@ -62,7 +61,6 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = authentication(password, user);
         String jwtToken = jwtService.generateToken(authentication,user.getId());
         UserDTO dto = UserAssembler.getInstance().assembleDetails(user);
-//        dto.setJwt(jwtToken);
         return dto;
     }
 

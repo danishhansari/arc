@@ -11,6 +11,6 @@ public interface WorkspaceService {
     WorkspaceDTO create(WorkspacePojo pojo, UUID userId);
     boolean exists(String name);
     List<WorkspaceSummaryDTO> getInvolveWorkspace(UUID userId);
-    WorkspaceSummaryDTO getActiveWorkspace(UUID userId);
+    WorkspaceDTO getActiveWorkspace(UUID userId);
     WorkspaceDTO updateWorkspace(WorkspaceActivePojo workspaceActivePojo, UUID userId);
 }
